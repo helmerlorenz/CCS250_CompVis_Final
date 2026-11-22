@@ -19,28 +19,33 @@ def seed_for(filename: str, epoch: int = 0, seed: int = 42) -> int:
     return int.from_bytes(hashlib.sha256(b).digest()[:8], 'big') % (2**32)
 
 
+
 def secure_path(base: Path, relative: str) -> Path:
     base = base.resolve()
-    relative_path = Path(relative)
+    relative_path = Path(str(relative).replace('\\', '/'))
 
     if relative_path.is_absolute():
-        raise ValueError(
-            f"Absolute paths are not allowed: {relative}"
-        )
+        raise ValueError(f"Absolute paths are not allowed: {relative}")
+
+    # Remove redundant "data/" prefix
+    if (
+        relative_path.parts
+        and relative_path.parts[0].lower() == 'data'
+        and base.name.lower() == 'data'
+    ):
+        relative_path = Path(*relative_path.parts[1:])
 
     path = (base / relative_path).resolve()
 
     if not path.is_relative_to(base):
-        raise ValueError(
-            f"Path outside project directory: {relative}"
-        )
+        raise ValueError(f"Path outside project directory: {relative}")
 
     if not path.is_file():
-        raise FileNotFoundError(
-            f"Image not found: {path}"
-        )
+        raise FileNotFoundError(f"Image not found: {path}")
 
     return path
+
+
 
 
 
