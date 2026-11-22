@@ -16,6 +16,7 @@ SOURCE_URLS={
 WEIGHT_URLS = {
     'restormer': 'https://github.com/swz30/Restormer/releases/download/v1.0/real_denoising.pth',
     'dncnn': 'https://github.com/cszn/KAIR/releases/download/v1.0/dncnn_color_blind.pth',
+}
 WEIGHT_URLS={
  'restormer':'https://github.com/swz30/Restormer/releases/download/v1.0/gaussian_color_denoising_blind.pth',
  'dncnn':'https://github.com/cszn/KAIR/releases/download/v1.0/dncnn_color_blind.pth',
