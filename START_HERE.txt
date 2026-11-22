@@ -1,31 +1,38 @@
-iMAGE — START HERE (Windows + VS Code)
+iMAGE ? START HERE (Windows + VS Code)
 =====================================
 
-1. Extract the ZIP. Open the whole iMAGE_Notebook_Edition folder in VS Code.
-2. In VS Code click Terminal > New Terminal. The path should end in iMAGE_Notebook_Edition.
-3. Run these commands ONE AT A TIME:
+1. Open this project folder in VS Code and install Python/Jupyter extensions.
+2. From a PowerShell terminal in the project root, run:
 
    py -3.11 -m venv .venv
    .\.venv\Scripts\python.exe -m pip install --upgrade pip
    .\.venv\Scripts\python.exe -m pip install -r requirements.txt
+   .\.venv\Scripts\python.exe -m pytest -q
 
-4. Run the preview website (no models need downloading yet):
+3. Start the preview website:
 
    .\.venv\Scripts\python.exe -m uvicorn app.main:app --reload
 
-5. Visit http://127.0.0.1:8000 in your browser. Test the upload.
-6. In VS Code, install the Microsoft Python and Jupyter extensions.
-7. Open notebooks/01_prepare_5000_images.ipynb. Click Select Kernel > .venv.
-8. Work through notebooks 01, then 02, then 03.
-9. To run REAL inference (online auto-fetch on first use), stop preview server
-   with Ctrl+C, then in the VS Code PowerShell terminal:
+   Visit http://127.0.0.1:8000. Preview filters are not neural models.
+
+4. Obtain aligned SIDD and PolyU paired data. The automated route is:
+
+   .\.venv\Scripts\python.exe -m scripts.prepare_real_data
+
+   This downloads the two large archives, verifies and extracts them, and
+   creates the fixed scene-separated split. Read README.md for sources and
+   disk requirements. Then inspect notebooks/01_prepare_5000_images.ipynb
+   with the .venv kernel to verify the data before training.
+5. The paired data and fixed 5,000-row manifest are already prepared in this
+   workspace. The three pretrained checkpoints are cached locally. The DnCNN
+   fine-tuning trial did not improve validation PSNR, so it was not selected.
+6. Open HeraldFolder/FINAL_SUBMISSION.ipynb for the final comparison. It is
+   mirrored as notebooks/03_evaluate_and_deploy.ipynb. Results from this run
+   belong in HeraldFolder/test/. The archived older notebook output uses a
+   different manifest and must not be cited as current evidence.
+7. For real inference, stop the preview server and restart with:
 
    $env:IMAGE_MODE="real"
    .\.venv\Scripts\python.exe -m uvicorn app.main:app --reload
 
-   The FIRST REAL request needs internet and will automatically retrieve
-   architecture source files and hundreds of MB of pretrained weights.
-   Downloads are cached for later runs; no manual model download or git clone.
-
-If a command fails, copy the complete terminal error. Do not open main.html
-with Live Server; use the FastAPI URL. Read README.md for full instructions.
+   The first real request downloads model sources and pretrained weights.

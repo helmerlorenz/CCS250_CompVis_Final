@@ -1,0 +1,28 @@
+{
+  "model": "restormer",
+  "split": "val",
+  "number_of_images": 50,
+  "limit_per_source": 25,
+  "patch": 128,
+  "device": "cpu",
+  "checkpoint": "D:\\CodingRelated\\Codes.Ams\\ComVisFinal\\CCS250_CompVis_Final\\cache\\pretrained\\restormer_real.pth",
+  "checkpoint_sha256": "4cae18bed8a291b9a5deeeab48756bbe6f61fcf7f31a4cca0969b24608601387",
+  "manifest_sha256": "49116dee666c137f25bc76db5196326c5e64db20ce3ae9cd755b3f3e79b689e2",
+  "noisy_psnr_db": 34.37356,
+  "noisy_ssim": 0.779,
+  "model_psnr_db": 43.04766,
+  "model_ssim": 0.97199,
+  "runtime_ms": 953.79679,
+  "by_source": {
+    "PolyU": {
+      "noisy_psnr_db": 37.14353,
+      "model_psnr_db": 40.09553,
+      "model_ssim": 0.96507
+    },
+    "SIDD": {
+      "noisy_psnr_db": 31.60359,
+      "model_psnr_db": 45.9998,
+      "model_ssim": 0.9789
+    }
+  }
+}

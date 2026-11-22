@@ -66,12 +66,19 @@ def best_from_benchmark():
             if summary.get('limited_test') or summary.get('number_of_test_images') != 500:
                 return None
             summaries.append(summary)
-        keys = ('sigma', 'patch', 'manifest_sha256')
+        keys = ('noise_type', 'evaluation_area', 'patch', 'tile', 'seed', 'manifest_sha256')
+        if summaries[0].get('noise_type') != 'paired_real' or summaries[0].get('evaluation_area') != 'center_crop':
+            return None
+        if summaries[0]['manifest_sha256'] != hashlib.sha256((ROOT / 'data/splits.csv').read_bytes()).hexdigest():
+            return None
         if any(any(record[k] != summaries[0][k] for k in keys) for record in summaries[1:]):
             return None
-        best = max(summaries, key=lambda r: r['psnr_db'])['model']
-        return best, (f'Highest mean PSNR across the same 500-image test set '
-                      f'(sigma={summaries[0]["sigma"]}; {summaries[0]["patch"]} px evaluation crops).')
+        if any(s.get('by_source', {}).get('PolyU', {}).get('number_of_images') != 150
+               for s in summaries):
+            return None
+        best = max(summaries, key=lambda r: r['by_source']['PolyU']['psnr_db'])['model']
+        return best, (f'Highest mean PSNR on 150 held-out PolyU test crops '
+                      f'({summaries[0]["patch"]} px center crops).')
     except (OSError, KeyError, ValueError, TypeError):
         return None
 

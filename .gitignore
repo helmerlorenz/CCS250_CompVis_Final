@@ -15,6 +15,7 @@ __pycache__/
 
 # Training datasets and generated data
 data/raw/
+data/downloads/
 data/processed/
 data/inventory/
 data/splits.csv
@@ -26,6 +27,8 @@ cache/
 weights/*.pth
 weights/*.pt
 weights/*.ckpt
+HeraldFolder/checkpoints/*.pth
+HeraldFolder/qa/
 
 # Generated evaluation files
 results/
@@ -35,11 +38,6 @@ results/
 Thumbs.db
 Desktop.ini
 
-# Data directories for training and evaluation
-data/inventory/
-
-# Unused NIND dataset downloader
-scripts/nind_downloader.py
 
 # Versioned training runs (large checkpoints, logs and evaluation artifacts)
 experiments/

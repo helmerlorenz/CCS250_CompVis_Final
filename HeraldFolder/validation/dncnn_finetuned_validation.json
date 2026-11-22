@@ -1,0 +1,28 @@
+{
+  "model": "dncnn",
+  "split": "val",
+  "number_of_images": 50,
+  "limit_per_source": 25,
+  "patch": 128,
+  "device": "cpu",
+  "checkpoint": "weights\\dncnn_finetuned.pth",
+  "checkpoint_sha256": "917decd44a6e9b332a46f72533b73aa80f7eecf46349140d5f5b2c161cc39ba2",
+  "manifest_sha256": "49116dee666c137f25bc76db5196326c5e64db20ce3ae9cd755b3f3e79b689e2",
+  "noisy_psnr_db": 34.37356,
+  "noisy_ssim": 0.779,
+  "model_psnr_db": 32.26428,
+  "model_ssim": 0.92034,
+  "runtime_ms": 607.22682,
+  "by_source": {
+    "PolyU": {
+      "noisy_psnr_db": 37.14353,
+      "model_psnr_db": 32.20547,
+      "model_ssim": 0.9482
+    },
+    "SIDD": {
+      "noisy_psnr_db": 31.60359,
+      "model_psnr_db": 32.32309,
+      "model_ssim": 0.89247
+    }
+  }
+}

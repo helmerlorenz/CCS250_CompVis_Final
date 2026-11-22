@@ -1,0 +1,19 @@
+{
+  "status": "trial checkpoint, not selected for final evaluation",
+  "training_completed_epochs": 1,
+  "second_epoch": "interrupted during CPU slowdown; no second checkpoint",
+  "checkpoint": "HeraldFolder\\checkpoints\\dncnn_finetuned_trial.pth",
+  "training_meta": {
+    "name": "dncnn",
+    "epoch": 1,
+    "noise_type": "paired_real",
+    "validation_psnr": 32.18488744735718,
+    "training_time_min": 2.398358726668327,
+    "seed": 42,
+    "training_samples": 200,
+    "validation_samples": 500,
+    "max_train_steps": 200,
+    "source": "dncnn.pth"
+  },
+  "selection": "published DnCNN baseline retained because trial validation PSNR decreased from 35.53753 to 32.26428 dB on the same 50 crops"
+}

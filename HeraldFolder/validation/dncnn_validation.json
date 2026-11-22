@@ -1,0 +1,28 @@
+{
+  "model": "dncnn",
+  "split": "val",
+  "number_of_images": 50,
+  "limit_per_source": 25,
+  "patch": 128,
+  "device": "cpu",
+  "checkpoint": "D:\\CodingRelated\\Codes.Ams\\ComVisFinal\\CCS250_CompVis_Final\\cache\\pretrained\\dncnn.pth",
+  "checkpoint_sha256": "dfe11a6b703304df82cdf236f431fc6492766c7b9119d97e943edeb392c710a3",
+  "manifest_sha256": "49116dee666c137f25bc76db5196326c5e64db20ce3ae9cd755b3f3e79b689e2",
+  "noisy_psnr_db": 34.37356,
+  "noisy_ssim": 0.779,
+  "model_psnr_db": 35.53753,
+  "model_ssim": 0.82593,
+  "runtime_ms": 105.1379,
+  "by_source": {
+    "PolyU": {
+      "noisy_psnr_db": 37.14353,
+      "model_psnr_db": 37.38917,
+      "model_ssim": 0.90811
+    },
+    "SIDD": {
+      "noisy_psnr_db": 31.60359,
+      "model_psnr_db": 33.6859,
+      "model_ssim": 0.74374
+    }
+  }
+}

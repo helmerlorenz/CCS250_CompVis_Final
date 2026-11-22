@@ -1,6 +1,6 @@
-"""Prepare exact SIDD/NIND/PolyU splits from curated paired-image CSV inventories.
+"""Prepare exact SIDD/PolyU splits from curated paired-image CSV inventories.
 Run from project root: python -m scripts.prepare_mixed_dataset
-Each inventory: data/inventory/{SIDD,NIND,PolyU}.csv, headers
+Each inventory: data/inventory/{SIDD,PolyU}.csv, headers
   noisy_path,clean_path,group_id
 Paths must be relative to data/, and pair images must already be aligned.
 Groups represent original scenes; prevents scene leakage across splits.
@@ -34,7 +34,7 @@ def read_inventory(source):
     file=DATA/'inventory'/f'{source}.csv'
     if not file.exists():
         raise FileNotFoundError(f'Missing {file}. Prepare real noisy/clean pairs first, then list them in this CSV.')
-    with file.open(newline='',encoding='utf8-sig') as f:
+    with file.open(newline='',encoding='utf-8-sig') as f:
         reader=csv.DictReader(f)
         if not {'noisy_path','clean_path','group_id'} <= set(reader.fieldnames or []):
             raise ValueError(f'{file}: required columns noisy_path,clean_path,group_id')
@@ -53,40 +53,55 @@ def read_inventory(source):
         if row['noisy_path'] in seen:raise ValueError(f'{source}: repeated noisy sample {row["noisy_path"]}')
         seen.add(row['noisy_path'])
         with Image.open(DATA/row['noisy_path']) as a, Image.open(DATA/row['clean_path']) as b:
-            if a.size!=b.size: raise ValueError(f'Unaligned pair {row["noisy_path"]} vs {row["clean_path"]}')
+            if a.size!=b.size: raise ValueError(f'Dimension mismatch: {row["noisy_path"]} vs {row["clean_path"]}')
             if min(a.size)<128:raise ValueError(f'Image smaller than 128 pixels: {row["noisy_path"]}')
+            a.load(); b.load()
         row['group_id']=group
     return rows
 
 
 def allocate(source, rows, seed=42):
-    """Assign whole groups to each split, exactly matching quotas; fail safely if impossible."""
+    """Split scenes first, then sample pairs evenly within each partition."""
     groups=defaultdict(list)
     for row in rows:groups[row['group_id']].append(row)
     pool=list(groups.items())
-    random.Random(seed+sum(map(ord,source))).shuffle(pool)
+    rng=random.Random(seed+sum(map(ord,source)))
     targets=QUOTAS[source]
-    # Dataset inventory should be curated to requested counts, so whole-scene assignment
-    # is simple and exact when each group is one pair; otherwise backtracking finds a fit.
     count_needed=sum(targets.values())
     if len(rows)<count_needed:raise ValueError(f'{source}: {len(rows)} pairs; need at least {count_needed}')
-    # Prefer unsplit source-scene groups, but do not explode on oversize inventories.
-    # Greedy bin assignment works for well-distributed groups; if impossible ask for a revised inventory.
-    remaining=dict(targets)
+    if len(pool)<sum(value>0 for value in targets.values()):
+        raise ValueError(f'{source}: too few independent scenes for three splits')
+    n_val=max(1,round(len(pool)*targets['val']/count_needed))
+    n_test=max(1,round(len(pool)*targets['test']/count_needed))
+    n_train=len(pool)-n_val-n_test
+    if n_train<1:raise ValueError(f'{source}: too few scenes for split proportions')
+    partitions=None
+    for _ in range(256):
+        candidate=pool.copy()
+        rng.shuffle(candidate)
+        proposed={'train':candidate[:n_train],
+                  'val':candidate[n_train:n_train+n_val],
+                  'test':candidate[n_train+n_val:]}
+        if all(sum(len(items) for _,items in proposed[split])>=target
+               for split,target in targets.items()):
+            partitions=proposed
+            break
+    if partitions is None:
+        raise ValueError(f'{source}: no scene assignment met exact quotas after 256 attempts. '
+                         'Review scene grouping and sample counts; no splits were written.')
     chosen=[]
-    pool.sort(key=lambda pair:len(pair[1]),reverse=True)
-    for group, items in pool:
-        size=len(items)
-        fits=[s for s in ('train','val','test') if remaining[s]>=size]
-        if not fits:continue
-        # Put large groups into available split with most remaining capacity.
-        split=max(fits,key=lambda s: remaining[s])
-        remaining[split]-=size
-        chosen.extend({**row,'source':source,'split':split} for row in items)
-        if not any(remaining.values()):break
-    if any(remaining.values()):
-        raise ValueError(f'{source}: cannot obtain exact quotas without splitting a scene; remaining={remaining}. '
-                         'Curate groups/inventory or use fewer correlated patches. No splits were written.')
+    for split,target in targets.items():
+        buckets=[]
+        for _,items in partitions[split]:
+            shuffled=items.copy()
+            rng.shuffle(shuffled)
+            buckets.append(shuffled)
+        count=0
+        while count<target:
+            for bucket in buckets:
+                if bucket and count<target:
+                    chosen.append({**bucket.pop(),'source':source,'split':split})
+                    count+=1
     return chosen
 
 
@@ -99,7 +114,14 @@ def prepare(output=None,seed=42):
         selected=allocate(source,rows,seed)
         all_rows.extend(selected)
         print(source,dict(Counter(r['split'] for r in selected)))
-    assert len(all_rows)==5000
+    assert len(all_rows)==sum(sum(parts.values()) for parts in QUOTAS.values())
+    noisy_paths=[r['noisy_path'] for r in all_rows]
+    if len(set(noisy_paths)) != len(noisy_paths):
+        raise ValueError('The same noisy image appears in multiple inventories. No splits were written.')
+    clean_splits=defaultdict(set)
+    for r in all_rows:clean_splits[r['clean_path']].add(r['split'])
+    if any(len(splits)>1 for splits in clean_splits.values()):
+        raise ValueError('A clean image crosses splits. No splits were written.')
     # No file can cross source partitions, and no group can leak across splits.
     groups=defaultdict(set)
     for r in all_rows:groups[(r['source'],r['group_id'])].add(r['split'])

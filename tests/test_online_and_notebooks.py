@@ -1,5 +1,4 @@
 """Offline tests: first-run external URLs are not available in this execution sandbox."""
-import io
 from pathlib import Path
 import nbformat
 import pytest
@@ -26,7 +25,11 @@ def test_download_failure_does_not_leave_partial_file(tmp_path, monkeypatch):
 
 def test_notebooks_have_no_code_syntax_errors():
     folder = Path(__file__).resolve().parents[1] / 'notebooks'
-    assert len(list(folder.glob('*.ipynb'))) == 3
+    assert {p.name for p in folder.glob('*.ipynb')} == {
+        '01_prepare_5000_images.ipynb',
+        '02_finetune_models.ipynb',
+        '03_evaluate_and_deploy.ipynb',
+    }
     for f in folder.glob('*.ipynb'):
         notebook = nbformat.read(f, as_version=4)
         nbformat.validate(notebook)

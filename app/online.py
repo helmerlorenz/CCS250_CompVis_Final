@@ -13,6 +13,9 @@ SOURCE_URLS={
  'restormer':'https://raw.githubusercontent.com/swz30/Restormer/main/basicsr/models/archs/restormer_arch.py',
  'nafnet':'https://raw.githubusercontent.com/megvii-research/NAFNet/main/basicsr/models/archs/NAFNet_arch.py',
 }
+WEIGHT_URLS = {
+    'restormer': 'https://github.com/swz30/Restormer/releases/download/v1.0/real_denoising.pth',
+    'dncnn': 'https://github.com/cszn/KAIR/releases/download/v1.0/dncnn_color_blind.pth',
 WEIGHT_URLS={
  'restormer':'https://github.com/swz30/Restormer/releases/download/v1.0/gaussian_color_denoising_blind.pth',
  'dncnn':'https://github.com/cszn/KAIR/releases/download/v1.0/dncnn_color_blind.pth',
@@ -42,6 +45,24 @@ def architecture_path(name: str)->Path:
  return download(SOURCE_URLS[name],UPSTREAM/(name+'_arch.py'),min_bytes=3000)
 
 
+def pretrained_path(name: str) -> Path:
+    if name == 'nafnet':
+        destination = CACHE / 'pretrained' / NAF_FILE
+        # HF Hub caches the downloaded model; this app keeps a stable path too.
+        if destination.exists() and hashlib.sha256(destination.read_bytes()).hexdigest() == NAF_SHA256:
+            return destination
+        from huggingface_hub import hf_hub_download
+        location = hf_hub_download(repo_id=NAF_REPO, filename=NAF_FILE)
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(location, destination)
+        if hashlib.sha256(destination.read_bytes()).hexdigest() != NAF_SHA256:
+            destination.unlink(missing_ok=True)
+            raise IOError('NAFNet checkpoint mirror has an unexpected SHA-256 digest.')
+        return destination
+    if name not in WEIGHT_URLS:
+        raise ValueError(name)
+    filename = 'restormer_real.pth' if name == 'restormer' else name + '.pth'
+    return download(WEIGHT_URLS[name], CACHE / 'pretrained' / filename, min_bytes=1_000_000)
 def pretrained_path(name: str)->Path:
  if name=='nafnet':
   destination=CACHE/'pretrained'/NAF_FILE

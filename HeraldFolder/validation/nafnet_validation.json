@@ -1,0 +1,28 @@
+{
+  "model": "nafnet",
+  "split": "val",
+  "number_of_images": 50,
+  "limit_per_source": 25,
+  "patch": 128,
+  "device": "cpu",
+  "checkpoint": "D:\\CodingRelated\\Codes.Ams\\ComVisFinal\\CCS250_CompVis_Final\\cache\\pretrained\\NAFNet-SIDD-width32.pth",
+  "checkpoint_sha256": "89c70e808d1783b6c07911306e106aaf0d4f7f3da8c61078b99ff7f8929a26f4",
+  "manifest_sha256": "49116dee666c137f25bc76db5196326c5e64db20ce3ae9cd755b3f3e79b689e2",
+  "noisy_psnr_db": 34.37356,
+  "noisy_ssim": 0.779,
+  "model_psnr_db": 43.49516,
+  "model_ssim": 0.97419,
+  "runtime_ms": 110.39614,
+  "by_source": {
+    "PolyU": {
+      "noisy_psnr_db": 37.14353,
+      "model_psnr_db": 40.87271,
+      "model_ssim": 0.9693
+    },
+    "SIDD": {
+      "noisy_psnr_db": 31.60359,
+      "model_psnr_db": 46.1176,
+      "model_ssim": 0.97907
+    }
+  }
+}
