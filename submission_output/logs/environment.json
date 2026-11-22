@@ -1,0 +1,10 @@
+{
+  "python": "3.11.9",
+  "platform": "Windows-10-10.0.26200-SP0",
+  "torch": "2.11.0+cu128",
+  "device": "cuda",
+  "gpu": "NVIDIA GeForce RTX 4070",
+  "numpy": "2.4.6",
+  "pandas": "2.3.3",
+  "run_started": "2026-11-22T23:01:08"
+}
